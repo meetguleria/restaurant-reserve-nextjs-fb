@@ -60,7 +60,7 @@ const Restaurants: React.FC = () => {
             </div>
             ))}
             </div>
-            {isAuthModalOpen && <AuthModal toggleModal={toggleModal} />}
+            {isAuthModalOpen && <AuthModal closeModal={toggleModal} />}
         </div>
     );
 };
