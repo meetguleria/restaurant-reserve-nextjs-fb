@@ -1,4 +1,4 @@
-import { doc, setDoc, collection, getDocs } from "firebase/firestore";
+import { addDoc, collection, getDocs } from "firebase/firestore";
 import { db } from '../firebase';
 
 export type Restaurant = {
@@ -29,7 +29,6 @@ export const getRestaurants = async (): Promise<Restaurant[]> => {
 
 export const addReservation = async (reservation: Reservation) => {
     
-    const reservationDoc = doc(db, 'reservations');
-
-    await setDoc(reservationDoc, reservation);
+    const reservationsCol = collection(db, 'reservations');
+    await addDoc(reservationsCol, reservation);
 };

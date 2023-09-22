@@ -3,7 +3,6 @@ import { useAuth } from '../src/authContext';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 
-import Link from 'next/link';
 import AuthModal from '../src/components/authModal';
 import { getRestaurants, Restaurant } from '../src/api';
 
@@ -46,7 +45,7 @@ const Restaurants: React.FC = () => {
                         className="absolute bottom-0 left-0 rounded-lg p-2 bg-custom-green text-white"
                         onClick={() => {
                             if (user) {
-                                router.push(`/makeReservation?restaurantId=${restaurant.id}`);
+                                router.push(`/makeReservations?restaurantId=${restaurant.id}`);
                             } else {
                                 toggleModal();
                             }
