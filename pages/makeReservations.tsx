@@ -12,23 +12,22 @@ const ReservationForm: React.FC = () => {
     const { user } = useAuth();
 
     const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-    const [selectedTime, setSelectedTime] = useState<string>("");
-    const [numPeople, setNumPeople] = useState(0);
-    const [showTimePicker, setShowTimePicker] = useState(false);
+    const [numGuests, setnumGuests] = useState(0);
     const [showGuestPicker, setShowGuestPicker] = useState(false);
+    const [confirmationVisible, setConfirmationVisible] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (user && restaurantId && selectedDate && selectedTime && numPeople > 0) {
+        if (user && restaurantId && selectedDate && numGuests > 0) {
             const reservation: Reservation = {
                 restaurantId: restaurantId as string,
                 userId: user.uid,
-                time: selectedTime,
+                time: selectedDate?.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) || '',
                 date: selectedDate?.toISOString().split('T')[0] || '',
-                numberOfPeople: numPeople,
+                numberOfPeople: numGuests,
             };
-    
+
             await addReservation(reservation);
         } else {
             console.error("Please fill all the required fields.");
@@ -37,57 +36,69 @@ const ReservationForm: React.FC = () => {
 
     const handleDateChange = (date: Date | null) => {
         setSelectedDate(date);
-        setShowTimePicker(true);
+        setShowGuestPicker(true)
+        if (numGuests > 0) {
+            setConfirmationVisible(true);
+        }
     }
 
-    const handleTimeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-        setSelectedTime(e.target.value);
-        setShowGuestPicker(true);
-    }
+    const handleGuestsChange = (e: React.FormEvent<HTMLInputElement>) => {
+        const target = e.currentTarget;
+        setnumGuests(Number(target.value));
+        if (selectedDate) {
+            setConfirmationVisible(true);
+        }
+    };
+
+    // Setting up time range for selection
+    const minTime = new Date();
+    minTime.setHours(11);
+    minTime.setMinutes(0);
+
+    const maxTime = new Date();
+    maxTime.setHours(20);
+    maxTime.setMinutes(0);
 
     return (
         <form onSubmit={handleSubmit} className="p-4 space-y-4">
                 <div className="flex items-center space-x-4">
                     <DatePicker 
-                    inline
-                    selected={selectedDate}
-                    onChange={handleDateChange}
-                    minDate={new Date()}
-                    className="border p-2 rounded"
+                        selected={selectedDate}
+                        onChange={handleDateChange}
+                        minDate={new Date()}
+                        className="border p-2 rounded"
+                        showTimeSelect
+                        timeFormat="h:mm aa"
+                        timeIntervals={60}
+                        minTime={minTime}
+                        maxTime={maxTime}
+                        inline
                     />
-                
-                {showTimePicker && (
-                    <select
-                        value={selectedTime}
-                        onChange={handleTimeChange}
-                        className="border p-2 rounded w-40"
-                    >
-                        <option value="11:00">11:00 AM</option>
-                        <option value="12:00">12:00 PM</option>
-                        <option value="13:00">1:00 PM</option>
-                        <option value="14:00">2:00 PM</option>
-                        <option value="15:00">3:00 PM</option>
-                        <option value="16:00">4:00 PM</option>
-                        <option value="17:00">5:00 PM</option>
-                        <option value="18:00">6:00 PM</option>
-                        <option value="19:00">7:00 PM</option>
-                    </select>
-                )}
                 </div>
                 {showGuestPicker && (
                     <div>
-                        <label className="block text-lg mb-2">Number of People:</label>
+                        <label className="block text-lg mb-2">Number of Guests:</label>
                         <input 
                             type="number"
-                            value={numPeople}
-                            onChange={(e) => setNumPeople(Number(e.target.value))}
+                            value={numGuests}
+                            onChange={handleGuestsChange}
                             min="1"
                             max="10"
                             className="border p-2 rounded w-40"
                         />
                     </div>
                 )}
-            <button type="submit">Make Reservation</button>
+
+                {confirmationVisible && (
+                    <div className="mt-4">
+                        <p className="mb-2">
+                            Do you want to reserve for {selectedDate?.toLocaleDateString()} at 
+                            {selectedDate?.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} 
+                            for {numGuests} people?
+                        </p>
+                        <button type="submit">Make Reservation</button>
+                    </div>
+                )}
         </form>
     )
 };

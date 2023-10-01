@@ -9,3 +9,7 @@ body {
 .react-datepicker-wrapper {
     margin-left: 10px !important;
 }
+
+.react-datepicker__time-list-item--disabled {
+    display: none;
+}
