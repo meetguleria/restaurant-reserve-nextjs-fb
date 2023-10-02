@@ -1,13 +1,18 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from 'next/router';
 import { addReservation, Reservation } from '../src/api';
 import { useAuth } from '../src/authContext';
 
+
+import { toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import BsBoxArrowInLeft from 'react-icons/bs';
+// @ts-ignore
+import { BsBoxArrowInLeft } from 'react-icons/bs';
 
 const ReservationForm: React.FC = () => {
+
     const router = useRouter();
     const { restaurantId } = router.query;
     const { user } = useAuth();
@@ -16,6 +21,39 @@ const ReservationForm: React.FC = () => {
     const [numGuests, setnumGuests] = useState(0);
     const [showGuestPicker, setShowGuestPicker] = useState(false);
     const [confirmationVisible, setConfirmationVisible] = useState(false);
+    const [isSuccess, setIsSuccess] = useState(false);
+
+    useEffect(() => {
+        if (isSuccess) {
+        const duration = 5;
+            
+        const showToastWithCountdown = (duration: number) => {
+            let timeLeft = duration;
+    
+            const intervalId = setInterval(() => {
+                toast.update("toast-id", {
+                    render: `Reservation successful, redirecting you to restaurants page in ${timeLeft} seconds`,
+                });
+    
+                timeLeft--;
+    
+                if (timeLeft < 0) {
+                    clearInterval(intervalId);
+                }
+            }, 1000);
+    
+            toast(`Reservation successful, redirecting you to restaurants page in ${timeLeft} seconds`, {
+                toastId: "toast-id",
+                autoClose: duration * 1000,
+                onClose: () => {
+                    router.push("/");
+                    },
+                });
+            };
+            // Show success toast
+            showToastWithCountdown(duration);
+        }
+    }, [isSuccess, router]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -30,6 +68,7 @@ const ReservationForm: React.FC = () => {
             };
 
             await addReservation(reservation);
+            setIsSuccess(true);
         } else {
             console.error("Please fill all the required fields.");
         }
@@ -51,6 +90,10 @@ const ReservationForm: React.FC = () => {
         }
     };
 
+    const backToHomepage = () => {
+        router.push('/');
+    };
+
     // Setting up time range for selection
     const minTime = new Date();
     minTime.setHours(11);
@@ -62,6 +105,12 @@ const ReservationForm: React.FC = () => {
 
     return (
         <form onSubmit={handleSubmit} className="p-4 space-y-4">
+            <button onClick={backToHomepage}
+                className="mb-4 flex items-center text-lg font-bold"
+            >
+                <BsBoxArrowInLeft className="mr-2 text-3xl" /> Back to Restaurants
+            </button>
+
                 <div className="flex items-center space-x-4">
                     <DatePicker 
                         selected={selectedDate}
