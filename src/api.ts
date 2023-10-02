@@ -1,4 +1,4 @@
-import { addDoc, collection, getDocs } from "firebase/firestore";
+import { addDoc, collection,getDocs, serverTimestamp } from "firebase/firestore";
 import { db } from '../firebase';
 
 export type Restaurant = {
@@ -28,7 +28,14 @@ export const getRestaurants = async (): Promise<Restaurant[]> => {
 }
 
 export const addReservation = async (reservation: Reservation) => {
-    
-    const reservationsCol = collection(db, 'reservations');
-    await addDoc(reservationsCol, reservation);
+    try {
+        const reservationsCol = collection(db, 'reservations');
+        await addDoc(reservationsCol, {
+            ...reservation,
+            timestamp: serverTimestamp(),
+        });
+        console.log('Reservation successfully added!');   
+    } catch (error) {
+        console.error('Error adding reservation:', error);
+    }
 };

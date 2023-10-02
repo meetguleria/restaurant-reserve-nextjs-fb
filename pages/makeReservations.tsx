@@ -5,6 +5,7 @@ import { useAuth } from '../src/authContext';
 
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import BsBoxArrowInLeft from 'react-icons/bs';
 
 const ReservationForm: React.FC = () => {
     const router = useRouter();
