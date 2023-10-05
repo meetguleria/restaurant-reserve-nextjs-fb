@@ -3,7 +3,6 @@ import { useRouter } from 'next/router';
 import { addReservation, Reservation } from '../src/api';
 import { useAuth } from '../src/authContext';
 
-
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import DatePicker from "react-datepicker";
@@ -25,33 +24,26 @@ const ReservationForm: React.FC = () => {
 
     useEffect(() => {
         if (isSuccess) {
-        const duration = 5;
-            
-        const showToastWithCountdown = (duration: number) => {
+            const duration = 5;
             let timeLeft = duration;
-    
-            const intervalId = setInterval(() => {
-                toast.update("toast-id", {
-                    render: `Reservation successful, redirecting you to restaurants page in ${timeLeft} seconds`,
-                });
-    
-                timeLeft--;
-    
-                if (timeLeft < 0) {
-                    clearInterval(intervalId);
-                }
-            }, 1000);
-    
+
+                // Show success toast
             toast(`Reservation successful, redirecting you to restaurants page in ${timeLeft} seconds`, {
                 toastId: "toast-id",
                 autoClose: duration * 1000,
                 onClose: () => {
-                    router.push("/");
-                    },
-                });
-            };
-            // Show success toast
-            showToastWithCountdown(duration);
+                    router.push("/")
+                },
+            });
+
+            const intervalId = setInterval(() => {
+                timeLeft--;
+
+                if (timeLeft < 0) {
+                    clearInterval(intervalId);
+                } 
+            }, 1000);
+
         }
     }, [isSuccess, router]);
 
